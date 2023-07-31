@@ -44,16 +44,12 @@ public class DiaryService {
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void createDiary(LocalDate date, String text) {
-        String weatherData = getWeatherString();
 
-        //받아온 날씨 json 파싱
-        Map<String, Object> parseWeather = parseWeather(weatherData);
+        DateWeather dateWeather = getDateWeather(date);
 
         //파싱된 데이터 + 일기 값 우리db에 넣기
         Diary nowDiary = new Diary();
-        nowDiary.setWeather(parseWeather.get("main").toString());
-        nowDiary.setIcon(parseWeather.get("icon").toString());
-        nowDiary.setTemperature((Double) parseWeather.get("temp"));
+        nowDiary.setDateWeather(dateWeather);
         nowDiary.setText(text);
         nowDiary.setDate(date);
         diaryRepository.save(nowDiary);
@@ -129,6 +125,16 @@ public class DiaryService {
 
         return resultMap;
 
+    }
+
+    private DateWeather getDateWeather(LocalDate date){
+        List<DateWeather> dateWeatherListFromDB = dateWeatherRepository.findAllByDate(date);
+        if(dateWeatherListFromDB.isEmpty()){
+            //새로 api에서 날씨 정보를 가져와야 한다.
+            return getWeatherFromApi();
+        }else{
+            return dateWeatherListFromDB.get(0);
+        }
     }
 
     @Transactional(readOnly = true)
