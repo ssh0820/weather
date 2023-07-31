@@ -16,5 +16,8 @@ spring:
         show_sql: true
   openweathermap:
     key: 26e6db5cc66e5d8ed4e2aacde0f32af8
+  mvc:
+    path-match:
+      matching-strategy: ant_path_matcher
 logging:
   config: classpath:logback-spring.xml
